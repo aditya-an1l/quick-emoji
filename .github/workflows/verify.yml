@@ -17,7 +17,7 @@ jobs:
       - name: Install runtime headers and test tools
         run: pacman -Syu --noconfirm fcitx5 jq pkgconf
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Check repository
         run: bash tests/test_repository.sh
@@ -25,6 +25,7 @@ jobs:
       - name: Compile Fcitx5 addon
         run: >-
           c++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror
+          -Wno-variadic-macros
           -fPIC -shared
           $(pkg-config --cflags Fcitx5Core)
           src/quickemoji.cpp
