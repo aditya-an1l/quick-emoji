@@ -18,9 +18,9 @@ omarchy plugin add https://github.com/joshferrara/quick-emoji.git --enable
 
 Quick Emoji uses the Fcitx5 input-method service that Omarchy already runs. On
 first enable it compiles a small user-local Fcitx5 addon, installs it under
-`~/.local`, and restarts Omarchy's Fcitx5 user service. No `sudo`, additional
-package, keylogger, accessibility permission, or second Quickshell process is
-used.
+`~/.local`, adds a plugin-scoped environment drop-in to Omarchy's Fcitx5 user
+service, and restarts that service. No `sudo`, additional package, keylogger,
+accessibility permission, or second Quickshell process is used.
 
 ## Use
 
@@ -62,8 +62,8 @@ omarchy plugin remove io.github.joshferrara.quick-emoji
 ```
 
 Removal restores the previous Fcitx5 UI configuration and deletes the compiled
-addon, generated theme, emoji data, cache, and cleanup unit. To perform that
-cleanup manually before removing the repository, run:
+addon, service drop-in, generated theme, emoji data, cache, and cleanup unit. To
+perform that cleanup manually before removing the repository, run:
 
 ```sh
 bash ~/.config/omarchy/plugins/io.github.joshferrara.quick-emoji/scripts/manage.sh deactivate

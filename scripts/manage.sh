@@ -14,6 +14,8 @@ addon_config=$fcitx_share/addon/quickemoji.conf
 addon_library=$fcitx_lib/quickemoji.so
 cleanup_service=${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/quick-emoji-cleanup.service
 cleanup_path=${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/quick-emoji-cleanup.path
+fcitx_dropin_dir=${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/omarchy-fcitx5.service.d
+fcitx_dropin=$fcitx_dropin_dir/quick-emoji.conf
 
 lock_path=${XDG_RUNTIME_DIR:-/tmp}/quick-emoji-${UID}.lock
 exec 9>"$lock_path"
@@ -158,12 +160,23 @@ install_cleanup_watch() {
   systemctl --user enable --now quick-emoji-cleanup.path >/dev/null 2>&1
 }
 
+write_fcitx_dropin() {
+  local system_addon_dir
+  system_addon_dir=$(pkg-config --variable=libdir Fcitx5Core)/fcitx5
+  mkdir -p "$fcitx_dropin_dir"
+  printf '%s\n' \
+    '[Service]' \
+    "Environment=\"FCITX_ADDON_DIRS=$fcitx_lib:$system_addon_dir\"" \
+    >"$fcitx_dropin"
+}
+
 deactivate() {
   # Fcitx writes its in-memory configuration when it exits. Stop it before
   # restoring the user's file so that stale values cannot overwrite it.
   stop_fcitx
   systemctl --user disable --now quick-emoji-cleanup.path >/dev/null 2>&1 || true
-  rm -f "$addon_config" "$addon_library" "$cleanup_service" "$cleanup_path"
+  rm -f "$addon_config" "$addon_library" "$cleanup_service" "$cleanup_path" "$fcitx_dropin"
+  rmdir "$fcitx_dropin_dir" 2>/dev/null || true
   rm -rf "$theme_dir"
 
   if [[ -f $state_dir/classicui.conf.before ]]; then
@@ -237,6 +250,7 @@ case "$action" in
     # Stop before changing classicui.conf; Fcitx persists its old in-memory
     # values on exit and would otherwise overwrite the generated config.
     stop_fcitx
+    write_fcitx_dropin
     write_theme "$@"
     install_cleanup_watch
     start_fcitx

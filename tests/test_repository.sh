@@ -35,5 +35,6 @@ lookup rocket 🚀
 
 bash -n "$root/scripts/manage.sh"
 shellcheck "$root/scripts/manage.sh" "$root/tests/test_repository.sh"
+grep -F 'FCITX_ADDON_DIRS=' "$root/scripts/manage.sh" >/dev/null
 
 echo "repository checks passed"
