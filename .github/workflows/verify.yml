@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Install runtime headers and test tools
-        run: pacman -Syu --noconfirm fcitx5 jq pkgconf
+        run: pacman -Syu --noconfirm fcitx5 jq pkgconf shellcheck
 
       - uses: actions/checkout@v5
 

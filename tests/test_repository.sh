@@ -34,5 +34,6 @@ lookup tada 🎉
 lookup rocket 🚀
 
 bash -n "$root/scripts/manage.sh"
+shellcheck "$root/scripts/manage.sh" "$root/tests/test_repository.sh"
 
 echo "repository checks passed"

@@ -98,6 +98,6 @@ Item {
 
   Component.onDestruction: {
     if (root.managerPath)
-      Quickshell.execDetached(["bash", root.managerPath, "deactivate"])
+      Quickshell.execDetached(["bash", root.managerPath, "deactivate-if-disabled"])
   }
 }

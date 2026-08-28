@@ -254,6 +254,19 @@ case "$action" in
     deactivate
     ;;
 
+  deactivate-if-disabled)
+    # A service object is also destroyed during shell restarts and hot reloads.
+    # Give the registry time to settle, then remove the addon only when Quattro
+    # explicitly reports this plugin as disabled (or no longer installed).
+    sleep 1
+    plugin_list=$(omarchy plugin list --json 2>/dev/null) || exit 0
+    if ! jq -e '
+      any(.[]; .id == "io.github.joshferrara.quick-emoji" and .enabled == true)
+    ' <<<"$plugin_list" >/dev/null; then
+      deactivate
+    fi
+    ;;
+
   cleanup)
     source_dir=$(cat "$state_dir/source-dir" 2>/dev/null || true)
     if [[ -z $source_dir || ! -f $source_dir/manifest.json ]]; then
@@ -262,7 +275,7 @@ case "$action" in
     ;;
 
   *)
-    printf 'Usage: %s {install|theme|deactivate|cleanup}\n' "$0" >&2
+    printf 'Usage: %s {install|theme|deactivate|deactivate-if-disabled|cleanup}\n' "$0" >&2
     exit 2
     ;;
 esac
