@@ -64,7 +64,8 @@ While enabled, Quick Emoji temporarily owns Fcitx5's `classicui.conf` so it can
 provide the vertical Omarchy-styled surface. It backs up the prior file and
 restores it when the plugin is disabled or removed. A lightweight systemd path
 unit handles cleanup if the repository folder is deleted outside Omarchy's
-normal removal flow.
+normal removal flow. Enabling the plugin is explicit consent for this temporary
+configuration change; no existing configuration is discarded.
 
 ## Remove
 
