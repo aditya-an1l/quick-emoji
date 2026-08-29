@@ -79,8 +79,8 @@ start_fcitx() {
 verify_fcitx_addon() {
   systemctl --user cat omarchy-fcitx5.service >/dev/null 2>&1 || return 0
 
-  local attempt main_pid
-  for attempt in {1..20}; do
+  local main_pid
+  for _ in {1..20}; do
     main_pid=$(systemctl --user show omarchy-fcitx5.service \
       --property=MainPID --value 2>/dev/null || true)
     if [[ $main_pid =~ ^[1-9][0-9]*$ ]] &&
