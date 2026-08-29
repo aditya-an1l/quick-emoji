@@ -76,6 +76,24 @@ start_fcitx() {
   fi
 }
 
+verify_fcitx_addon() {
+  systemctl --user cat omarchy-fcitx5.service >/dev/null 2>&1 || return 0
+
+  local attempt main_pid
+  for attempt in {1..20}; do
+    main_pid=$(systemctl --user show omarchy-fcitx5.service \
+      --property=MainPID --value 2>/dev/null || true)
+    if [[ $main_pid =~ ^[1-9][0-9]*$ ]] &&
+      grep -Fq '/quickemoji.so' "/proc/$main_pid/maps" 2>/dev/null; then
+      return 0
+    fi
+    sleep 0.1
+  done
+
+  notify_error 'Fcitx5 started, but did not load the Quick Emoji addon. Check: journalctl --user -u omarchy-fcitx5.service -n 100'
+  return 1
+}
+
 write_theme() {
   local background=${1:-#1a1b26}
   local foreground=${2:-#c0caf5}
@@ -200,19 +218,19 @@ case "$action" in
       notify_error 'This plugin requires Omarchy Linux.'
       exit 1
     }
-    command -v pkg-config >/dev/null 2>&1 || {
-      notify_error 'pkg-config is missing. Run: omarchy pkg add pkgconf'
-      exit 1
-    }
-    pkg-config --exists Fcitx5Core || {
-      notify_error 'Fcitx5 development files are missing. Update Omarchy, then try again.'
-      exit 1
-    }
     compiler=${CXX:-c++}
-    command -v "$compiler" >/dev/null 2>&1 || {
-      notify_error 'A C++ compiler is missing. Run: omarchy pkg add base-devel'
+    missing_packages=()
+    command -v pkg-config >/dev/null 2>&1 || missing_packages+=(pkgconf)
+    if ! command -v fcitx5 >/dev/null 2>&1 ||
+      ! command -v pkg-config >/dev/null 2>&1 ||
+      ! pkg-config --exists Fcitx5Core; then
+      missing_packages+=(fcitx5)
+    fi
+    command -v "$compiler" >/dev/null 2>&1 || missing_packages+=(base-devel)
+    if (( ${#missing_packages[@]} > 0 )); then
+      notify_error "Missing standard Omarchy packages: ${missing_packages[*]}. Run: omarchy pkg add ${missing_packages[*]}"
       exit 1
-    }
+    fi
 
     mkdir -p "$state_dir" "$cache_dir" "$share_dir" "$fcitx_lib" "$(dirname "$addon_config")"
     printf '%s\n' "$source_dir" >"$state_dir/source-dir"
@@ -245,7 +263,11 @@ case "$action" in
       mv "$cache_dir/quickemoji.so.new" "$cache_dir/quickemoji.so"
       printf '%s\n' "$build_key" >"$cache_dir/build-key"
     fi
-    cp "$cache_dir/quickemoji.so" "$addon_library"
+    # Replace the library atomically. Overwriting a shared object in place can
+    # corrupt the pages mapped by the running Fcitx process and crash it while
+    # the service is stopping.
+    install -m 755 "$cache_dir/quickemoji.so" "$addon_library.new"
+    mv -f "$addon_library.new" "$addon_library"
 
     # Stop before changing classicui.conf; Fcitx persists its old in-memory
     # values on exit and would otherwise overwrite the generated config.
@@ -254,6 +276,7 @@ case "$action" in
     write_theme "$@"
     install_cleanup_watch
     start_fcitx
+    verify_fcitx_addon
     ;;
 
   theme)

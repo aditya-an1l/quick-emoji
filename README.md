@@ -4,11 +4,14 @@ Slack-style emoji completion in every app, built for Omarchy Quattro.
 
 [![Verify](https://github.com/joshferrara/quick-emoji/actions/workflows/verify.yml/badge.svg)](https://github.com/joshferrara/quick-emoji/actions/workflows/verify.yml)
 
+![Quick Emoji searching for smile aliases](assets/quick-emoji.png)
+
 Type `:w` and a small, theme-aware picker appears at the caret. Keep typing to
 fuzzy-search, use the arrow keys to move, and press `Enter`, `Tab`, or `Space`
 to insert the highlighted emoji. A complete shortcut such as `:wave:` expands
 immediately to 👋. `Escape` closes the picker and leaves the literal text in
-place.
+place. The compact six-row picker scrolls through every ranked match one result
+at a time.
 
 ## Install
 
@@ -22,14 +25,22 @@ first enable it compiles a small user-local Fcitx5 addon, installs it under
 service, and restarts that service. No `sudo`, additional package, keylogger,
 accessibility permission, or second Quickshell process is used.
 
+Quick Emoji checks its prerequisites before changing any files. A full Omarchy
+installation includes them. Reduced environments such as Try Omarchy may omit
+some packages; if so, setup reports one command containing everything missing:
+
+```sh
+omarchy pkg add fcitx5 pkgconf base-devel
+```
+
 ## Use
 
 | Key | Action |
 | --- | --- |
 | `:name:` | Expand an exact GitHub/Slack-style alias |
 | `:query` | Open and filter the picker |
-| `↑` / `↓` | Move through results |
-| `Page Up` / `Page Down` | Jump through the result list |
+| `↑` / `↓` | Move through all results one at a time |
+| `Page Up` / `Page Down` | Jump six results |
 | `Enter`, `Tab`, or `Space` | Insert the highlighted emoji |
 | `Escape` | Close and keep the literal `:query` text |
 | `Backspace` | Edit the query; at an empty query it cancels |
@@ -97,6 +108,13 @@ Confirm Fcitx5 and the addon are running:
 ```sh
 systemctl --user status omarchy-fcitx5.service
 fcitx5-diagnose | rg -i 'quick emoji|quickemoji'
+```
+
+Successful setup also verifies that `quickemoji.so` is loaded by the supervised
+Fcitx5 process. If that check fails, inspect its service log:
+
+```sh
+journalctl --user -u omarchy-fcitx5.service -n 100
 ```
 
 Some Electron applications need to be restarted after an input-method service

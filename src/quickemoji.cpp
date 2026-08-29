@@ -486,12 +486,21 @@ private:
             candidates->setPageSize(kPageSize);
             candidates->setLayoutHint(CandidateLayoutHint::Vertical);
             candidates->setLabels({});
-            for (const auto &match : state.matches) {
+            // Render a sliding six-row window instead of Fcitx pages. Arrow
+            // navigation then advances one result at a time, including across
+            // the old page boundary, while explicit Page Up/Down still moves
+            // the selection by kPageSize.
+            const int windowStart = std::max(0, state.selected - kPageSize + 1);
+            const int windowEnd = std::min(
+                windowStart + kPageSize,
+                static_cast<int>(state.matches.size()));
+            for (int index = windowStart; index < windowEnd; ++index) {
+                const auto &match = state.matches[static_cast<size_t>(index)];
                 candidates->append<EmojiCandidate>(
                     this, match.emoji->glyph, match.emoji->primaryAlias);
             }
             if (!state.matches.empty()) {
-                candidates->setGlobalCursorIndex(state.selected);
+                candidates->setCursorIndex(state.selected - windowStart);
             }
             panel.setCandidateList(std::move(candidates));
         }

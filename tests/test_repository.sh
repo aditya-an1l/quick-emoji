@@ -36,5 +36,8 @@ lookup rocket 🚀
 bash -n "$root/scripts/manage.sh"
 shellcheck "$root/scripts/manage.sh" "$root/tests/test_repository.sh"
 grep -F 'FCITX_ADDON_DIRS=' "$root/scripts/manage.sh" >/dev/null
+grep -F 'mv -f "$addon_library.new" "$addon_library"' "$root/scripts/manage.sh" >/dev/null
+grep -F 'verify_fcitx_addon' "$root/scripts/manage.sh" >/dev/null
+grep -F 'Missing standard Omarchy packages:' "$root/scripts/manage.sh" >/dev/null
 
 echo "repository checks passed"
