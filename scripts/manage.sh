@@ -59,7 +59,15 @@ qt_alpha() {
 }
 
 reload_theme() {
-  command -v fcitx5-remote >/dev/null 2>&1 && fcitx5-remote -r >/dev/null 2>&1 || true
+  # Classic UI caches SVG theme assets for the lifetime of the process.
+  # fcitx5-remote -r reloads configuration but leaves those images cached, so
+  # restart Omarchy's supervised service to make color and geometry changes
+  # visible. Fall back to the remote reload on systems without that unit.
+  if systemctl --user cat omarchy-fcitx5.service >/dev/null 2>&1; then
+    systemctl --user restart omarchy-fcitx5.service
+  elif command -v fcitx5-remote >/dev/null 2>&1; then
+    fcitx5-remote -r >/dev/null 2>&1 || true
+  fi
 }
 
 stop_fcitx() {
