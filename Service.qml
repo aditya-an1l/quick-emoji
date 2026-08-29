@@ -18,6 +18,8 @@ Item {
   }
 
   function themeArguments(action) {
+    const menuBorder = Border.surfaceSpec(
+      "menu", "border", Color.menu.border, Math.max(1, Style.space(2)))
     return [
       "bash",
       root.managerPath,
@@ -28,7 +30,11 @@ Item {
       root.qmlColor(Color.menu.border),
       root.qmlColor(Color.menu.selectedBackground),
       root.qmlColor(Color.menu.selectedText),
-      String(Style.font.menuFamily || "sans-serif")
+      String(Style.font.menuFamily || "sans-serif"),
+      String(Math.max(0, Style.cornerRadius)),
+      root.qmlColor(Border.color(menuBorder)),
+      String(Math.max(0, Border.uniformWidth(menuBorder))),
+      String(Math.max(1, Style.font.body))
     ]
   }
 
@@ -56,7 +62,9 @@ Item {
     }
     onExited: function(exitCode) {
       root.installed = exitCode === 0
-      if (exitCode !== 0)
+      if (root.installed)
+        root.syncTheme()
+      else
         console.warn("Quick Emoji setup failed:", installError.text)
     }
   }
@@ -94,6 +102,14 @@ Item {
   Connections {
     target: Style.font
     function onMenuFamilyChanged() { themeDebounce.restart() }
+    function onBodyChanged() { themeDebounce.restart() }
+  }
+
+  Connections {
+    target: Style
+    function onCornerRadiusChanged() { themeDebounce.restart() }
+    function onSpacingScaleChanged() { themeDebounce.restart() }
+    function onStyleOverridesChanged() { themeDebounce.restart() }
   }
 
   Component.onDestruction: {

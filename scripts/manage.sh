@@ -101,8 +101,21 @@ write_theme() {
   local selected_background=${4:-#292e42}
   local selected_text=${5:-#7aa2f7}
   local font_family=${6:-sans-serif}
+  local corner_radius=${7:-0}
+  local border_color=${8:-$border}
+  local border_width=${9:-1}
+  local font_size=${10:-12}
   local background_rgba foreground_rgba border_rgba selected_rgba selected_text_rgba
   local background_rgb border_rgb selected_rgb background_alpha border_alpha selected_alpha
+  local border_inset panel_size highlight_radius
+
+  [[ $corner_radius =~ ^[0-9]+([.][0-9]+)?$ ]] || corner_radius=0
+  [[ $border_width =~ ^[0-9]+([.][0-9]+)?$ ]] || border_width=1
+  [[ $font_size =~ ^[0-9]+([.][0-9]+)?$ ]] || font_size=12
+  border=$border_color
+  border_inset=$(awk -v width="$border_width" 'BEGIN { printf "%.3f", width / 2 }')
+  panel_size=$(awk -v width="$border_width" 'BEGIN { printf "%.3f", 48 - width }')
+  highlight_radius=$(awk -v n="$corner_radius" 'BEGIN { if (n > 4) n -= 4; printf "%.3f", n }')
 
   background_rgba=$(qt_to_rgba "$background")
   foreground_rgba=$(qt_to_rgba "$foreground")
@@ -123,11 +136,16 @@ write_theme() {
     -e "s|@BACKGROUND_ALPHA@|$background_alpha|g" \
     -e "s|@BORDER@|$border_rgb|g" \
     -e "s|@BORDER_ALPHA@|$border_alpha|g" \
+    -e "s|@BORDER_WIDTH@|$border_width|g" \
+    -e "s|@BORDER_INSET@|$border_inset|g" \
+    -e "s|@PANEL_SIZE@|$panel_size|g" \
+    -e "s|@CORNER_RADIUS@|$corner_radius|g" \
     "$share_dir/panel.svg.in" >"$theme_dir/panel.svg"
 
   sed \
     -e "s|@SELECTED@|$selected_rgb|g" \
     -e "s|@SELECTED_ALPHA@|$selected_alpha|g" \
+    -e "s|@CORNER_RADIUS@|$highlight_radius|g" \
     "$share_dir/highlight.svg.in" >"$theme_dir/highlight.svg"
 
   sed \
@@ -141,8 +159,8 @@ write_theme() {
   printf '%s\n' \
     'Vertical Candidate List=True' \
     'WheelForPaging=True' \
-    "Font=$font_family 12" \
-    "MenuFont=$font_family 12" \
+    "Font=$font_family $font_size" \
+    "MenuFont=$font_family $font_size" \
     'Theme=quick-emoji' \
     'DarkTheme=quick-emoji' \
     >"$fcitx_config"

@@ -57,8 +57,9 @@ subsequences, and small spelling mistakes.
 
 The popup uses Fcitx5's caret-aware candidate surface, configured as a compact
 vertical list. Its background, border, selection, text, and font are kept in
-sync with Quattro's live `Color.menu` and `Style.font` tokens, including theme
-changes while the session is running.
+sync with Quattro's live menu tokens. Corner radius, border color and width,
+spacing scale, and typography also follow the active theme, including changes
+while the session is running.
 
 While enabled, Quick Emoji temporarily owns Fcitx5's `classicui.conf` so it can
 provide the vertical Omarchy-styled surface. It backs up the prior file and

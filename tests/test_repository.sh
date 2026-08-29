@@ -39,5 +39,10 @@ grep -F 'FCITX_ADDON_DIRS=' "$root/scripts/manage.sh" >/dev/null
 grep -F 'mv -f' "$root/scripts/manage.sh" | grep -F 'addon_library.new' >/dev/null
 grep -F 'verify_fcitx_addon' "$root/scripts/manage.sh" >/dev/null
 grep -F 'Missing standard Omarchy packages:' "$root/scripts/manage.sh" >/dev/null
+grep -F 'Style.cornerRadius' "$root/Service.qml" >/dev/null
+grep -F 'Style.font.body' "$root/Service.qml" >/dev/null
+grep -F 'Border.surfaceSpec' "$root/Service.qml" >/dev/null
+grep -F '@BORDER_WIDTH@' "$root/fcitx/panel.svg.in" >/dev/null
+grep -F '@CORNER_RADIUS@' "$root/fcitx/panel.svg.in" >/dev/null
 
 echo "repository checks passed"

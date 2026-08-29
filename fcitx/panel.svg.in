@@ -1,3 +1,3 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-  <rect x="1" y="1" width="46" height="46" rx="11" fill="@BACKGROUND@" fill-opacity="@BACKGROUND_ALPHA@" stroke="@BORDER@" stroke-opacity="@BORDER_ALPHA@" stroke-width="1"/>
+  <rect x="@BORDER_INSET@" y="@BORDER_INSET@" width="@PANEL_SIZE@" height="@PANEL_SIZE@" rx="@CORNER_RADIUS@" fill="@BACKGROUND@" fill-opacity="@BACKGROUND_ALPHA@" stroke="@BORDER@" stroke-opacity="@BORDER_ALPHA@" stroke-width="@BORDER_WIDTH@"/>
 </svg>
