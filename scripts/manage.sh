@@ -330,6 +330,18 @@ case "$action" in
     fi
     ;;
 
+  toggle-terminals)
+    flag="$state_dir/terminals-enabled"
+    if [[ -f "$flag" ]]; then
+      rm -f "$flag"
+      printf 'Emoji picker disabled in terminals\n'
+    else
+      mkdir -p "$state_dir"
+      touch "$flag"
+      printf 'Emoji picker enabled in terminals\n'
+    fi
+    ;;
+
   cleanup)
     source_dir=$(cat "$state_dir/source-dir" 2>/dev/null || true)
     if [[ -z $source_dir || ! -f $source_dir/manifest.json ]]; then
@@ -338,7 +350,7 @@ case "$action" in
     ;;
 
   *)
-    printf 'Usage: %s {install|theme|deactivate|deactivate-if-disabled|cleanup}\n' "$0" >&2
+    printf 'Usage: %s {install|theme|deactivate|deactivate-if-disabled|toggle-terminals|cleanup}\n' "$0" >&2
     exit 2
     ;;
 esac

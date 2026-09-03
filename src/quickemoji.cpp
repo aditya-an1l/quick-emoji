@@ -318,8 +318,39 @@ private:
 
     bool unavailable(InputContext *inputContext) const {
         const auto capabilities = inputContext->capabilityFlags();
-        return capabilities.test(CapabilityFlag::Password) ||
-               capabilities.test(CapabilityFlag::Disable) || emojis_.empty();
+        if (capabilities.test(CapabilityFlag::Password) ||
+            capabilities.test(CapabilityFlag::Disable) || emojis_.empty()) {
+            return true;
+        }
+        const char *home = std::getenv("HOME");
+        const char *state = std::getenv("XDG_STATE_HOME");
+        if (state) {
+            if (std::ifstream flag(std::string(state) +
+                                   "/quick-emoji/terminals-enabled");
+                flag.good()) {
+                return false;
+            }
+        } else if (home) {
+            if (std::ifstream flag(std::string(home) +
+                                   "/.local/state/quick-emoji/terminals-enabled");
+                flag.good()) {
+                return false;
+            }
+        }
+        static const std::vector<std::string> blocklist = {
+            "Alacritty", "kitty", "foot", "ghostty",
+            "org.wezfurlong.wezterm", "gnome-terminal",
+            "org.kde.konsole", "xterm",
+        };
+        const auto &program = inputContext->program();
+        if (!program.empty()) {
+            for (const auto &name : blocklist) {
+                if (program.find(name) != std::string::npos) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     static bool hasCommandModifier(const Key &key) {
