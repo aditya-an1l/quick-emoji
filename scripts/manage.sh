@@ -275,7 +275,7 @@ case "$action" in
     cp "$source_dir/fcitx/highlight.svg.in" "$share_dir/highlight.svg.in"
     cp "$source_dir/fcitx/quickemoji.conf" "$addon_config"
 
-    build_key=$(sha256sum "$source_dir/src/quickemoji.cpp" | cut -d' ' -f1)-$(pkg-config --modversion Fcitx5Core)
+    build_key=$(cat "$source_dir/src/quickemoji.cpp" "$source_dir/src/terminalpolicy.h" | sha256sum | cut -d' ' -f1)-$(pkg-config --modversion Fcitx5Core)
     old_build_key=$(cat "$cache_dir/build-key" 2>/dev/null || true)
     if [[ $build_key != "$old_build_key" || ! -f $cache_dir/quickemoji.so ]]; then
       read -r -a compile_flags <<<"$(pkg-config --cflags Fcitx5Core)"
